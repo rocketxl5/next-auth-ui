@@ -1,6 +1,6 @@
 import { requireRole } from '@/lib/auth/role';
 
-export default async function AdminDashboard() {
+export default async function ManageProducts() {
   // Only admin or super_admin can access
   const user = await requireRole(['ADMIN', 'SUPER_ADMIN']);
 
