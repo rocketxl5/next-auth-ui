@@ -37,16 +37,14 @@
  */
 
 import { NextResponse } from 'next/server';
-import { requireRole } from '@/lib/auth/role';
+import { withRole } from '@/lib/auth/withRole';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 // --------------------
 // GET — List all users
 // --------------------
-export async function GET() {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -70,13 +68,12 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // POST — Create a new user
 // --------------------
-export async function POST(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const data = await req.json();
 
   if (!data.email || !data.password || !data.role) {
@@ -118,13 +115,12 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // PUT — Update existing user
 // --------------------
-export async function PUT(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -161,13 +157,12 @@ export async function PUT(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // DELETE — Remove user
 // --------------------
-export async function DELETE(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -183,4 +178,4 @@ export async function DELETE(req: Request) {
       { status: 500 }
     );
   }
-}
+});

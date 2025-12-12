@@ -40,9 +40,9 @@
 import { cookies } from 'next/headers';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-type AllowdRoles = string | string[];
+type AllowedRoles = string | string[];
 
-export async function requireRole(roles: AllowdRoles) {
+export async function requireRole(roles: AllowedRoles) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
