@@ -13,7 +13,7 @@
  *
  * Auth:
  *   - Requires valid access token (handled by middleware)
- *   - Role: ADMIN or SUPER_ADMIN (requireRole())
+ *   - Role: ADMIN or SUPER_ADMIN
  *
  * Implementation Notes:
  *   - Uses Prisma ContentItem model where type = "PRODUCT"
@@ -23,7 +23,7 @@
  *   - DELETE expects `id` as query parameter
  *
  * Related Files:
- *   - /lib/auth/role.ts → requireRole()
+ *   - /lib/auth/withRole.ts → withRole()
  *   - /lib/prisma.ts    → Prisma instance
  *   - prisma/schema.prisma
  *
@@ -37,15 +37,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { requireRole } from '@/lib/auth/role';
+import { withRole } from '@/lib/auth/withRole';
 import prisma from '@/lib/prisma';
 
 // --------------------
 // GET — Fetch all products (admin only)
 // --------------------
-export async function GET() {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const products = await prisma.contentItem.findMany({
       where: { type: 'PRODUCT' },
@@ -70,13 +68,12 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // POST — Create new product
 // --------------------
-export async function POST(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const data = await req.json();
 
   try {
@@ -99,13 +96,12 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // PUT — Update existing product
 // --------------------
-export async function PUT(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -132,13 +128,12 @@ export async function PUT(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // --------------------
 // DELETE — Remove product
 // --------------------
-export async function DELETE(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
+export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -154,4 +149,4 @@ export async function DELETE(req: Request) {
       { status: 500 }
     );
   }
-}
+});

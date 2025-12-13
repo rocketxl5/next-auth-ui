@@ -13,7 +13,7 @@
  *
  * Auth:
  *   - Requires a valid access token (handled by middleware)
- *   - Role: ADMIN or SUPER_ADMIN (requireRole())
+ *   - Role: ADMIN or SUPER_ADMIN
  *
  * Implementation Notes:
  *   - Uses Prisma User model
@@ -23,7 +23,7 @@
  *   - Errors are caught and returned as JSON with HTTP 500
  *
  * Related Files:
- *   - /lib/auth/role.ts → requireRole()
+ *   - /lib/auth/withRole.ts → withRole()
  *   - /lib/prisma.ts    → Prisma instance
  *   - prisma/schema.prisma
  *

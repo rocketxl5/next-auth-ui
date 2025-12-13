@@ -19,22 +19,20 @@
  *   - Errors are caught and returned as JSON
  *
  * Related Files:
- *   - /lib/auth/role.ts → requireRole()
+ *   - /lib/auth/withRole.ts → withRole()
  *   - /lib/prisma.ts     → Prisma instance
  *   - prisma/schema.prisma → ContentItem model
  * -------------------------------------------------------
  */
 
 import { NextResponse } from 'next/server';
-import { requireRole } from '@/lib/auth/role';
+import { withRole } from '@/lib/auth/withRole';
 import prisma from '@/lib/prisma';
 
 // -------------------------------------------------------
 // GET — List all posts
 // -------------------------------------------------------
-export async function GET() {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const posts = await prisma.contentItem.findMany({
       where: { type: 'POST' },
@@ -59,15 +57,13 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
 // -------------------------------------------------------
 // POST — Create a new post
 // Expects JSON body with title, slug, body, status
 // -------------------------------------------------------
-export async function POST(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const data = await req.json();
 
@@ -91,15 +87,13 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // -------------------------------------------------------
 // PUT — Update a post
 // Requires post ID in query parameter and body data
 // -------------------------------------------------------
-export async function PUT(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const { id } = Object.fromEntries(new URL(req.url).searchParams) as {
       id: string;
@@ -124,15 +118,13 @@ export async function PUT(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // -------------------------------------------------------
 // DELETE — Remove a post
 // Requires post ID in query parameter
 // -------------------------------------------------------
-export async function DELETE(req: Request) {
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const { id } = Object.fromEntries(new URL(req.url).searchParams) as {
       id: string;
@@ -150,4 +142,4 @@ export async function DELETE(req: Request) {
       { status: 500 }
     );
   }
-}
+});

@@ -36,20 +36,16 @@
  *      Authorization: Bearer <access_token>
  *
  * Related Files:
- *   - /lib/auth/role.ts → requireRole()
+ *   - /lib/auth/withRole.ts → withRole()
  * -------------------------------------------------------
  */
 
 import { NextResponse } from 'next/server';
-import { requireRole } from '@/lib/auth/role';
-
+import { withRole } from '@/lib/auth/withRole';
 // -------------------------------------------------------
 // GET — Fetch admin settings
 // -------------------------------------------------------
-export async function GET() {
-  // 1️⃣ Access control
-  await requireRole(['ADMIN', 'SUPER_ADMIN']);
-
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   // 2️⃣ Placeholder settings
   const settings = {
     siteName: 'CMS + E-commerce Template',
@@ -68,7 +64,7 @@ export async function GET() {
 
   // 3️⃣ Return JSON response
   return NextResponse.json(settings, { status: 200 });
-}
+});
 
 // -------------------------------------------------------
 // Note:
