@@ -140,17 +140,3 @@ This matches **current best practice**.
 
 > **Passwords are secrets, not text fields.**
 > Treat them like binary data that only hashing functions understand.
-
-Once you internalize that, everything else makes sense.
-
----
-
-You’re asking exactly the questions someone with real experience asks when they notice the ecosystem has evolved.
-
-If you want, next we can:
-
-* align your password policy with NIST exactly
-* or add breach checking later (Have I Been Pwned)
-* or wire this into login + signup flows cleanly
-
-Just say the word.
