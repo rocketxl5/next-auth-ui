@@ -20,6 +20,7 @@
 
 'use client';
 
+import { NextResponse } from 'next/server';
 import { useState } from 'react';
 import { signupFormSchema } from './schema';
 
@@ -65,8 +66,14 @@ export default function SignupPage() {
       }
 
       alert('Signup successful');
-    } catch {
+    } catch (error) {
       setError('Something went wrong');
+
+      console.error('SIGNIN ERROR:', error);
+      return NextResponse.json(
+        { message: 'Internal server error' },
+        { status: 500 }
+      );
     } finally {
       setLoading(false);
     }

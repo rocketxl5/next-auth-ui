@@ -1,5 +1,6 @@
 'use client';
 
+import { NextResponse } from 'next/server';
 import { useState } from 'react';
 import { signinSchema } from '@/lib/validators';
 
@@ -40,8 +41,14 @@ export default function SigninPage() {
       }
 
       alert('Signed in');
-    } catch {
+    } catch (error) {
       setError('Something went wrong');
+
+      console.error('SIGNIN ERROR:', error);
+      return NextResponse.json(
+        { message: 'Internal server error' },
+        { status: 500 }
+      );
     } finally {
       setLoading(false);
     }
