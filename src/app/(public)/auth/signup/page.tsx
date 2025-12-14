@@ -1,13 +1,34 @@
+/**
+ * Signup Page (Client Component)
+ *
+ * Purpose:
+ * - Provides a minimal UI to test the signup flow end-to-end
+ * - Validates user input using a UI-only Zod schema
+ * - Sends only API-valid fields to /api/auth/signup
+ *
+ * Important:
+ * - This component must NOT import Prisma or server-only logic
+ * - Validation here is for UX (e.g. confirmPassword)
+ * - The API route is the source of truth for data integrity
+ *
+ * Architecture:
+ * UI (page.tsx)
+ *   → signupFormSchema (client-only validation)
+ *   → /api/auth/signup (controller)
+ *   → Prisma (model)
+ */
+
 'use client';
 
 import { useState } from 'react';
-import { createUserSchema } from '@/lib/validators';
+import { signupFormSchema } from './schema';
 
 export default function SignupPage() {
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +39,7 @@ export default function SignupPage() {
     setError(null);
 
     // 1️⃣ Client-side validation (optional but nice)
-    const parsed = createUserSchema.safeParse(form);
+    const parsed = signupFormSchema.safeParse(form);
 
     if (!parsed.success) {
       setError(parsed.error.issues[0].message);
@@ -27,11 +48,13 @@ export default function SignupPage() {
 
     setLoading(true);
 
+    const { confirmPassword, ...payload } = parsed.data;
+
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -76,6 +99,14 @@ export default function SignupPage() {
         placeholder="Password"
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
+      />
+
+      <input
+        className="w-full rounded border p-2"
+        type="password"
+        placeholder="Confirm Password"
+        value={form.confirmPassword}
+        onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
       />
 
       <button

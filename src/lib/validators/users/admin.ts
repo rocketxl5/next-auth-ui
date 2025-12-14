@@ -10,6 +10,6 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = z.object({
   name: nameSchema.optional(),
-  email: z.string().email({ message: 'Invalid email format' }).optional(),
+  email: emailSchema.optional(),
   role: roleEnum.optional(),
 });
