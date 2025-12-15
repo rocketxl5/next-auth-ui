@@ -75,17 +75,3 @@ export function clearAuthCookies(res: NextResponse) {
   res.cookies.delete('accessToken');
   res.cookies.delete('refreshToken');
 }
-
-// NextResponse already knows the cookie option shape.
-// So the best solution is: don’t import CookieOptions at all.
-// Just let TypeScript infer the type.
-// By using:
-// sameSite: "strict" as const
-// You safely pin the literal value so TypeScript accepts it everywhere.
-// No internal imports.
-// No dependency issues.
-// No breaking updates
-// Your route stays the same
-// res.cookies.set("accessToken", accessToken, accessCookieOptions)
-// res.cookies.set("refreshToken", refreshToken, refreshCookieOptions)
-// No change needed there ✅

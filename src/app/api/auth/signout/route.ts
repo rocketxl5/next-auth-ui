@@ -1,42 +1,77 @@
-// Signout route:
-//
-// Destroys the user session by:
-// 1. Clearing accessToken and refreshToken cookies
-// 2. Removing the refreshTokenHash from the database
-// 3. Preventing any further token rotation
-//
-// This fully logs the user out of all current sessions
-// and requires a fresh signin to regain access
+/**
+ * SIGN OUT ROUTE
+ * -------------------------------------------------------
+ * Purpose:
+ *   Terminates the current user session by removing all
+ *   client-side authentication state and best-effort
+ *   server-side refresh token data.
+ *
+ * Key guarantees:
+ *   - The user is ALWAYS logged out from the client
+ *   - Cookies are ALWAYS cleared, even if errors occur
+ *   - The route NEVER throws due to token or DB issues
+ *
+ * Flow:
+ *   1. Create a response object early
+ *   2. Read refresh token from HTTP-only cookies (if present)
+ *   3. Attempt to verify the refresh token
+ *   4. If verification succeeds:
+ *        - Extract userId from token payload
+ *        - Clear stored refreshTokenHash in the database
+ *   5. If verification fails:
+ *        - Skip database cleanup (identity cannot be trusted)
+ *   6. Always clear auth cookies in a `finally` block
+ *   7. Return a successful response (204 No Content)
+ *
+ * Failure handling:
+ *   - Invalid / expired / missing refresh token → ignored
+ *   - User no longer exists → ignored
+ *   - Database errors → ignored
+ *
+ * Security notes:
+ *   - Database mutations are performed ONLY when identity
+ *     is verified from a valid refresh token
+ *   - No sensitive information is returned
+ *   - Logout is idempotent and safe to call multiple times
+ *
+ * Method:   POST /api/auth/signout
+ * Access:   Authenticated (best-effort; token optional)
+ * Response: 204 No Content
+ * -------------------------------------------------------
+ */
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
+import { verifyRefreshToken } from '@/lib/auth/tokens';
+import { clearAuthCookies } from '@/lib/auth/cookies';
 
 export async function POST() {
+  const res = NextResponse.json(null, { status: 204 });
+
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+    const refreshToken = cookieStore.get('refreshToken')?.value;
 
-    if (accessToken) {
-      const decode = jwt.decode(accessToken) as { id?: string };
+    // If no refresh token, still clear cookies (idempotent)
+    if (refreshToken) {
+      try {
+        const decoded = verifyRefreshToken(refreshToken);
+        const userId = decoded.id as string | undefined;
 
-      if (decode?.id) {
-        await prisma.user.update({
-          where: { id: decode.id },
-          data: { refreshTokenHash: null },
-        });
+        if (userId) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { refreshTokenHash: null },
+          });
+        }
+      } catch (error) {
+        console.error('SIGNOUT ERROR:', error);
       }
     }
-
-    // Clear cookies
-    cookieStore.set('accessToken', '', { maxAge: 0, path: '/' });
-    cookieStore.set('refreshToken', '', { maxAge: 0, path: '/' });
-
-    return NextResponse.json({ message: 'Signed out successfully' });
-  } catch (error) {
-    console.error('SIGNOUT ERROR:', error);
-
-    return NextResponse.json({ error: 'Failed to sign out' }, { status: 500 });
+  } finally {
+    clearAuthCookies(res);
   }
+
+  return res;
 }
