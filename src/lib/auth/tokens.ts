@@ -29,51 +29,59 @@
  * -------------------------------------------------------
  */
 
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
-import { getExpires } from './env';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { authConfig } from './config';
 
-export const ACCESS_EXPIRES_IN = getExpires('JWT_ACCESS_EXPIRES_IN', '15m');
-export const REFRESH_EXPIRES_IN = getExpires('JWT_REFRESH_EXPIRES_IN', '7d');
-
+/**
+ * Token payload shared across auth flows
+ */
 type TokenPayload = {
   id: string;
   email?: string;
   role?: string;
 };
 
+/**
+ * Create short-lived access token
+ */
 export function createAccessToken(payload: TokenPayload) {
-  return jwt.sign(payload, process.env.JWT_ACCESS_SECRET as Secret, {
-    expiresIn: ACCESS_EXPIRES_IN,
+  return jwt.sign(payload, authConfig.accessSecret, {
+    expiresIn: authConfig.accessExpires,
   });
 }
 
+/**
+ * Create long-lived refresh token
+ * (minimal payload by design)
+ */
 export function createRefreshToken(payload: { id: string }) {
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET as Secret, {
-    expiresIn: REFRESH_EXPIRES_IN,
+  return jwt.sign(payload, authConfig.refreshSecret, {
+    expiresIn: authConfig.refreshExpires,
   });
 }
 
+/**
+ * Verify and decode refresh token
+ */
 export function verifyRefreshToken(token: string): JwtPayload {
-  const secret = process.env.JWT_REFRESH_SECRET!;
-
-  const decoded = jwt.verify(token, secret);
+  const decoded = jwt.verify(token, authConfig.accessSecret);
 
   if (typeof decoded === 'string') {
-    throw new Error('Invalid token payload');
+    throw new Error('Invalid refresh token payload');
   }
 
-  return decoded as JwtPayload;
+  return decoded;
 }
 
+/**
+ * Verify and decode access token
+ */
 export function verifyAccessToken(token: string): JwtPayload {
-  const secret = process.env.JWT_ACCESS_SECRET!;
-
-  const decoded = jwt.verify(token, secret);
+  const decoded = jwt.verify(token, authConfig.refreshSecret);
 
   if (typeof decoded === 'string') {
     throw new Error('Invalid token payload');
   }
 
-  return decoded as JwtPayload;
+  return decoded;
 }
-
