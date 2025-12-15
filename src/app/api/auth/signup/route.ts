@@ -32,6 +32,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { conflict, badRequest, internalServerError } from '@/lib/http';
 
 export async function POST(req: Request) {
   try {
@@ -40,10 +41,7 @@ export async function POST(req: Request) {
     const { name, email, password } = body;
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+      badRequest('Email and password are required');
     }
 
     // 2. Check if user already exists
@@ -52,10 +50,7 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User already exists' },
-        { status: 409 }
-      );
+      conflict('User already exists');
     }
 
     // 3. Hash password
@@ -85,9 +80,6 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('SIGNUP ERROR:', error);
 
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
+    internalServerError();
   }
 }

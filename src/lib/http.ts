@@ -53,3 +53,10 @@ export function notFound(message = 'Not Found') {
 export function internalServerError(message = 'Internal Server Error') {
   return NextResponse.json({ error: message }, { status: 500 });
 }
+
+/**
+ * Helper to return 409 Conflict (e.g., resource already exists)
+ */
+export function conflict(message = 'Resource already exists') {
+  return NextResponse.json({ error: message }, { status: 409 });
+}
