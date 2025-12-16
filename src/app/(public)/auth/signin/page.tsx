@@ -1,6 +1,5 @@
 'use client';
 
-import { NextResponse } from 'next/server';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
