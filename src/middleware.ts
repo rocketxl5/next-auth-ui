@@ -40,53 +40,50 @@
  * -------------------------------------------------------
  */
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { verifyAccessToken } from "./lib/auth/tokens";
-import { redirectToSignin } from "./lib/auth/redirect";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { verifyAccessToken } from './lib/auth/tokens';
+import { redirectToSignin } from './lib/auth/redirect';
 
-const PROTECTED = ["/dashboard", "/admin"]
-const ADMIN_ONLY = ["/admin"]
+const PROTECTED = ['/dashboard', '/admin'];
+const ADMIN_ONLY = ['/admin'];
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
+  // Test
+  // console.log('🛡️ MIDDLEWARE HIT:', req.nextUrl.pathname);
+
+  const { pathname } = req.nextUrl;
 
   // Skip static and auth API routes
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/auth")
-  ) {
-    return NextResponse.next()
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
   }
 
   // Only guard protected routes
-  const mustProtect = PROTECTED.some((p) => pathname.startsWith(p))
-  if (!mustProtect) return NextResponse.next()
+  const mustProtect = PROTECTED.some((p) => pathname.startsWith(p));
+  if (!mustProtect) return NextResponse.next();
 
   // Read accessToken cookie
-  const token = req.cookies.get("accessToken")?.value
-  if (!token) return redirectToSignin(req)
+  const token = req.cookies.get('accessToken')?.value;
+  if (!token) return redirectToSignin(req);
 
   // Verify token signature
-  let payload
+  let payload;
   try {
-    payload = verifyAccessToken(token)
+    payload = verifyAccessToken(token);
   } catch {
-    return redirectToSignin(req)
+    return redirectToSignin(req);
   }
 
   // Role restriction
-  const isAdminPage = ADMIN_ONLY.some((a) => pathname.startsWith(a))
+  const isAdminPage = ADMIN_ONLY.some((a) => pathname.startsWith(a));
   if (isAdminPage && !['ADMIN', 'SUPER_ADMIN'].includes(payload.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-  ]
-}
+  matcher: ['/dashboard/:path*', '/admin/:path*'],
+};
