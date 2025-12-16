@@ -1,83 +1,77 @@
 /**
- * API FETCH HELPER (Client-side)
+ * apiFetch
  * -------------------------------------------------------
- * Purpose:
- *   Provides a centralized fetch wrapper that automatically
- *   handles authentication using access + refresh tokens.
+ * A client-side wrapper around fetch() for your Next.js app.
  *
- * Why this exists:
- *   - Access tokens are short-lived and may expire at any time
- *   - Refresh tokens allow sessions to continue without forcing
- *     the user to re-authenticate
- *   - Next.js does NOT refresh tokens automatically
+ *  * Key features:
+ * - Accepts plain object bodies and automatically JSON.stringify() them
+ * - Accepts strings, FormData, Blob, etc. as-is
+ * - Merges default and custom headers
+ * - Handles errors safely and parses JSON responses
  *
  * Responsibilities:
- *   1. Perform a normal authenticated fetch request
- *   2. Detect expired access tokens (401 responses)
- *   3. Call /api/auth/refresh to rotate tokens when needed
- *   4. Retry the original request once with fresh credentials
+ * - Automatically serialize body objects to JSON
+ * - Set default headers (`Content-Type: application/json`)
+ * - Merge any user-specified headers
+ * - Handle errors and parse JSON safely
  *
- * What this helper DOES:
- *   - Sends cookies automatically (httpOnly auth cookies)
- *   - Refreshes tokens silently when access expires
- *   - Prevents duplicated auth logic in components
- *   - Keeps auth flow predictable and centralized
+ * Parameters:
+ * - input: RequestInfo
+ *     The URL string or Request object to fetch.
+ * - init: RequestInit (optional)
+ *     Options like method, headers, body, etc. Defaults to {}.
  *
- * What this helper DOES NOT do:
- *   - Does not run on the server or middleware
- *   - Does not manage React state or UI
- *   - Does not retry indefinitely (prevents infinite loops)
- *   - Does not handle redirects or navigation
+ * Returns:
+ * - Parsed JSON response from the server
  *
- * Usage:
- *   const res = await apiFetch('/api/protected/resource');
- *   const data = await res.json();
- *
- * Failure behavior:
- *   - If refresh fails, the promise rejects
- *   - Callers should treat this as "session expired"
- *     and redirect to /signin or show a message
- *
- * Environment:
- *   - Client-side only ('use client')
- *   - Relies on secure httpOnly cookies
- *
- * Security notes:
- *   - Refresh token is never exposed to JavaScript
- *   - Token rotation happens server-side only
- *   - Only a single retry is allowed per request
+ * Throws:
+ * - An Error with a server-provided message if response is not ok
  * -------------------------------------------------------
  */
 
-'use client';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiFetchBody = Record<string, any> | string | null;
 
-export async function apiFetch(
-  input: RequestInfo,
-  init: RequestInit = {}
-) {
-  let res = await fetch(input, {
-    ...init,
-    credentials: 'include',
+interface ApiFetchInit extends Omit<RequestInit, 'body'> {
+  body?: ApiFetchBody; // Accept plain objects, strings, or null
+  headers?: Record<string, string>;
+}
+
+export async function apiFetch(input: RequestInfo, init: ApiFetchInit = {}) {
+  const { body, headers, ...rest } = init;
+
+  // If body is object, serialize to JSON otherwise leave as is
+  const requestBody =
+    body && typeof body !== 'string' ? JSON.stringify(body) : body;
+
+  // Merge default and user-specified headers
+  const requestHeaders = {
+    'Content-Type': 'application/json',
+    ...headers,
+  };
+
+  const res = await fetch(input, {
+    ...rest, // method, credentials, mode, etc.
+    headers: requestHeaders,
+    body: requestBody,
   });
 
-  // Access token expired → try refresh
-  if (res.status === 401) {
-    const refreshRes = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      credentials: 'include',
-    });
+  if (!res.ok) {
+    // Attempt to parse the response as JSON
+    // If parsing fails (empty body, invalid JSON), catch the error and return an empty object
+    const errorData = await res.json().catch(() => ({}));
 
-    // Refresh failed → session is dead
-    if (!refreshRes.ok) {
-      throw new Error('Session expired');
-    }
-
-    // Retry original request once
-    res = await fetch(input, {
-      ...init,
-      credentials: 'include',
-    });
+    // Throw a new error using the server-provided message if available,
+    // otherwise fallback to a default error message
+    throw new Error(errorData?.message ?? 'API request failed');
   }
 
-  return res;
+  // Response is OK, try to parse JSON
+  try {
+    
+    return await res.json();
+  } catch {
+    // If parsing fails (empty or invalid JSON), return null
+    return null;
+  }
 }

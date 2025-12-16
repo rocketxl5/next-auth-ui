@@ -1,10 +1,15 @@
 'use client';
 
 import { NextResponse } from 'next/server';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { apiFetch } from '@/lib/api/apiFetch';
 import { signinSchema } from '@/lib/validators';
+import { getRedirectPathname } from '@/lib/auth/pathname';
 
 export default function SigninPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -27,28 +32,27 @@ export default function SigninPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/signin', {
+      // apiFetch throws on non-OK responses
+      const data = await apiFetch('/api/auth/signin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed.data),
+        body: parsed.data,
       });
 
-      const data = await res.json();
+      const user = data.user;
 
-      if (!res.ok) {
-        setError(data.message ?? 'Invalid credentials');
-        return;
+      if (!user) {
+        throw new Error('Signin succeeded but no user payload was returned');
       }
 
-      alert('Signed in');
-    } catch (error) {
-      setError('Something went wrong');
+      const from = searchParams.get('from');
+      const pathname = getRedirectPathname(user.role, from);
+
+      router.replace(pathname);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setError(error.message ?? 'Invalid credentials');
 
       console.error('SIGNIN ERROR:', error);
-      return NextResponse.json(
-        { message: 'Internal server error' },
-        { status: 500 }
-      );
     } finally {
       setLoading(false);
     }
