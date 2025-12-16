@@ -1,8 +1,8 @@
-export default function HomePage() {
+export default function AdminPage() {
   return (
     <div className="h-screen w-full flex items-center">
       <h1 className="w-full text-center">
-        Welcome to Next Auth UI version 1.0
+        This is admin page
       </h1>
     </div>
   );
