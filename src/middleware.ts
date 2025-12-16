@@ -77,8 +77,8 @@ export function middleware(req: NextRequest) {
 
   // Role restriction
   const isAdminPage = ADMIN_ONLY.some((a) => pathname.startsWith(a))
-  if (isAdminPage && payload.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.url))
+  if (isAdminPage && !['ADMIN', 'SUPER_ADMIN'].includes(payload.role)) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next()

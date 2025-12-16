@@ -1,40 +1,30 @@
 /**
- * ME / SESSION ROUTE
+ * CURRENT USER ROUTE
  * -------------------------------------------------------
  * Purpose:
- *   Returns the currently authenticated user based on
- *   the access token stored in HTTP-only cookies.
+ *   Returns the currently authenticated user's information.
  *
  * Flow:
  *   1. Read accessToken from cookies
- *   2. Verify and decode JWT payload
- *   3. Fetch the user from the database
- *   4. Return user-safe data only
- *
- * Failure cases:
- *   - Missing token
- *   - Invalid or expired token
- *   - User no longer exists
+ *   2. Verify JWT
+ *   3. Fetch user info from DB (optional select fields)
+ *   4. Return user info
+ *   5. On failure: return 401 Unauthorized
  *
  * Security notes:
- *   - Password and tokens are NEVER returned
- *   - Requires a valid access token
- * -------------------------------------------------------
+ *   - Only safe user fields returned (no password / refresh token)
+ *   - Access token verification is required
  *
- * Method:   GET /api/auth/me
- * Access:   Protected
+ * Method: GET /api/auth/me
+ * Access: Authenticated (access token)
+ * -------------------------------------------------------
  */
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
-
-type AccessTokenPayload = {
-  id: string;
-  email: string;
-  role: string;
-};
+import { verifyAccessToken } from '@/lib/auth/tokens';
+import { unauthorized, internalServerError } from '@/lib/http';
 
 export async function GET() {
   try {
@@ -42,16 +32,20 @@ export async function GET() {
     const accessToken = cookieStore.get('accessToken')?.value;
 
     if (!accessToken) {
-      return NextResponse.json({ error: 'Not Authenticated' }, { status: 401 });
+      return unauthorized();
     }
 
-    const decoded = jwt.verify(
-      accessToken,
-      process.env.JWT_ACCESS_SECRET!
-    ) as AccessTokenPayload;
+    let decoded;
+    try {
+      decoded = verifyAccessToken(accessToken);
+    } catch {
+      return unauthorized();
+    }
+
+    const userId = decoded.id as string;
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
@@ -62,16 +56,12 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return unauthorized();
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error('ME ROUTE ERROR:', error);
-
-    return NextResponse.json(
-      { error: 'Invalid or expired token' },
-      { status: 401 }
-    );
+    return internalServerError();
   }
 }
