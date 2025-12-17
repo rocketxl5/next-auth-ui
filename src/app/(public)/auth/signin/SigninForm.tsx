@@ -5,9 +5,11 @@ import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
 import { signinSchema } from '@/lib/validators';
 import { getRedirectPathname } from '@/lib/auth/pathname';
+import { withSuspense } from '@/components/hoc/withSuspense';
+import { SigninSkeleton } from './SiginSkeleton';
 
-export const SigninForm = () => {
-   const router = useRouter();
+const SigninForm = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [form, setForm] = useState({
     email: '',
@@ -90,4 +92,6 @@ export const SigninForm = () => {
       {error && <p className="text-sm text-red-600">{error}</p>}
     </form>
   );
-}
+};
+
+export default withSuspense(SigninForm, SigninSkeleton)

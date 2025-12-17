@@ -1,20 +1,11 @@
 'use client';
 
-import { Suspense } from 'react';
-import { SigninForm } from '@/components/ui/Form/SigninForm';
+import SigninForm from './SigninForm';
 
 export default function SigninPage() {
   return (
-    <Suspense fallback={<SigninSkeleton />}>
+    <div className="min-h-screen flex items-center justify-center">
       <SigninForm />
-    </Suspense>
-  );
-}
-
-function SigninSkeleton() {
-  return (
-    <div className="mx-auto mt-20 max-w-sm text-white rounded border p-6">
-      Loading…
     </div>
   );
 }
