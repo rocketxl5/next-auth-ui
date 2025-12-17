@@ -64,7 +64,7 @@ export function createRefreshToken(payload: { id: string }) {
  * Verify and decode refresh token
  */
 export function verifyRefreshToken(token: string): JwtPayload {
-  const decoded = jwt.verify(token, authConfig.accessSecret);
+  const decoded = jwt.verify(token, authConfig.refreshSecret);
 
   if (typeof decoded === 'string') {
     throw new Error('Invalid refresh token payload');
@@ -77,7 +77,7 @@ export function verifyRefreshToken(token: string): JwtPayload {
  * Verify and decode access token
  */
 export function verifyAccessToken(token: string): JwtPayload {
-  const decoded = jwt.verify(token, authConfig.refreshSecret);
+  const decoded = jwt.verify(token, authConfig.accessSecret);
 
   if (typeof decoded === 'string') {
     throw new Error('Invalid token payload');
