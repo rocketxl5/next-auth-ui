@@ -46,7 +46,7 @@ import { verifyAccessToken } from './lib/auth/tokens';
 import { redirectToSignin } from './lib/auth/redirect';
 
 const PROTECTED = ['/dashboard', '/admin'];
-const ADMIN_ONLY = ['/admin'];
+const ADMIN_ONLY = ['/dashboard', '/admin'];
 
 export function middleware(req: NextRequest) {
   // Test
@@ -71,6 +71,7 @@ export function middleware(req: NextRequest) {
   let payload;
   try {
     payload = verifyAccessToken(token);
+    console.log('MIDDLEWARE PAYLOAD:', payload);
   } catch {
     return redirectToSignin(req);
   }

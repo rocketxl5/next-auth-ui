@@ -1,4 +1,5 @@
 // app/(auth)/layout.tsx
+import { SignoutBtn } from '@/components/ui/Button/SignoutBtn';
 export default function AuthLayout({
   children,
 }: {
@@ -10,15 +11,11 @@ export default function AuthLayout({
         <h1 className="text-lg font-semibold">Dashboard</h1>
 
         <form action="/api/auth/signout" method="POST">
-          <button className="text-sm underline">
-            Sign out
-          </button>
+          <SignoutBtn />
         </form>
       </header>
 
-      <main className="mx-auto max-w-6xl p-6">
-        {children}
-      </main>
+      <main className="mx-auto max-w-6xl p-6">{children}</main>
     </>
   );
 }
