@@ -42,8 +42,8 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAccessToken } from './lib/auth/tokens';
-import { redirectToSignin } from './lib/auth/redirect';
+import { verifyAccessToken } from './src/lib/auth/tokens';
+import { redirectToSignin } from './src/lib/auth/redirect';
 
 const PROTECTED = ['/dashboard', '/admin'];
 const ADMIN_ONLY = ['/dashboard', '/admin'];
