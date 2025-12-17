@@ -1,3 +1,10 @@
+// Architecture
+//
+// Page (server)
+//  └─ Suspense
+//      └─ SigninForm (client, owns logic)
+//      └─ SigninSkeleton
+
 'use client';
 
 import SigninForm from './SigninForm';
