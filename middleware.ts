@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAccessToken } from './src/lib/auth/tokens';
+import { verifyAccessTokenEdge } from './src/lib/auth/tokens';
 import { redirectToSignin } from './src/lib/auth/redirect';
 
 const PROTECTED = ['/dashboard', '/admin'];
 const ADMIN_ONLY = ['/admin']; // only /admin strictly admin
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip static files and auth API routes
@@ -29,10 +29,10 @@ export function middleware(req: NextRequest) {
   // Verify token safely
   let payload;
   try {
-    payload = verifyAccessToken(token);
-    console.info('[MIDDLEWARE] Access token payload:', payload);
-  } catch (err) {
-    console.error('[MIDDLEWARE] Token verification failed:', err);
+    payload = await verifyAccessTokenEdge(token);
+    console.info('[MIDDLEWARE] Payload:', payload);
+  } catch (error) {
+    console.warn('[MIDDLEWARE] Invalid token');
     return redirectToSignin(req);
   }
 
