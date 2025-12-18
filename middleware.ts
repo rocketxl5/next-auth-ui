@@ -1,60 +1,15 @@
-/**
- * AUTH MIDDLEWARE
- * -------------------------------------------------------
- * Purpose:
- *   Protects server routes in the App Router by validating
- *   JWT access tokens and enforcing role-based access.
- *
- * Responsibilities:
- *   - Guard all routes listed in `PROTECTED` matcher
- *   - Redirect unauthenticated users to /signin
- *   - Enforce role restrictions (e.g., ADMIN-only routes)
- *   - Skip static assets and auth API routes
- *
- * Design goals:
- *   - Keep route protection centralized
- *   - Reuse existing token helpers (verifyAccessToken)
- *   - Fail-safe: invalid or missing token always redirects
- *   - Compatible with App Router (`NextRequest` + `NextResponse`)
- *
- * Step-by-step behavior:
- *   1. Skip static assets (`/_next/...`) and auth APIs (`/api/auth/...`)
- *   2. Check if the request matches a protected route
- *   3. If protected, attempt to read `accessToken` cookie
- *   4. If missing, redirect user to /signin with `from` query param
- *   5. If token exists, verify it using `verifyAccessToken`
- *   6. If token is invalid/expired, redirect to /signin
- *   7. Check role restrictions for admin pages
- *   8. If user lacks required role, redirect to `/`
- *   9. If all checks pass, continue to requested route (`NextResponse.next()`)
- *
- * Security notes:
- *   - Tokens are short-lived (accessToken)
- *   - Role-based access ensures sensitive pages are protected
- *   - Middleware does not expose token payload to client
- *
- * Used by:
- *   - All pages listed in `matcher` (e.g., /dashboard, /admin)
- *   - Works in conjunction with token helpers and requireRole()
- *
- * -------------------------------------------------------
- */
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAccessToken } from './src/lib/auth/tokens';
 import { redirectToSignin } from './src/lib/auth/redirect';
 
 const PROTECTED = ['/dashboard', '/admin'];
-const ADMIN_ONLY = ['/dashboard', '/admin'];
+const ADMIN_ONLY = ['/admin']; // only /admin strictly admin
 
 export function middleware(req: NextRequest) {
-  // Test
-  // console.log('🛡️ MIDDLEWARE HIT:', req.nextUrl.pathname);
-
   const { pathname } = req.nextUrl;
 
-  // Skip static and auth API routes
+  // Skip static files and auth API routes
   if (pathname.startsWith('/_next') || pathname.startsWith('/api/auth')) {
     return NextResponse.next();
   }
@@ -63,28 +18,37 @@ export function middleware(req: NextRequest) {
   const mustProtect = PROTECTED.some((p) => pathname.startsWith(p));
   if (!mustProtect) return NextResponse.next();
 
-  // Read accessToken cookie
+  // Read accessToken cookie (edge-friendly)
   const token = req.cookies.get('accessToken')?.value;
-  if (!token) return redirectToSignin(req);
 
-  // Verify token signature
+  if (!token) {
+    console.warn('[MIDDLEWARE] No access token found, redirecting to signin');
+    return redirectToSignin(req);
+  }
+
+  // Verify token safely
   let payload;
   try {
     payload = verifyAccessToken(token);
-    console.log('MIDDLEWARE PAYLOAD:', payload);
-  } catch {
+    console.info('[MIDDLEWARE] Access token payload:', payload);
+  } catch (err) {
+    console.error('[MIDDLEWARE] Token verification failed:', err);
     return redirectToSignin(req);
   }
 
   // Role restriction
   const isAdminPage = ADMIN_ONLY.some((a) => pathname.startsWith(a));
   if (isAdminPage && !['ADMIN', 'SUPER_ADMIN'].includes(payload.role)) {
+    console.warn(
+      `[MIDDLEWARE] User role "${payload.role}" not allowed on admin page, redirecting to /`
+    );
     return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();
 }
 
+// Middleware matcher config
 export const config = {
   matcher: ['/dashboard/:path*', '/admin/:path*'],
 };
