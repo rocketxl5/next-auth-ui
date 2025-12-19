@@ -40,12 +40,12 @@ export function SignoutBtn() {
 
     try {
       await signOut();
-      router.push('/signin');
+      router.push('/auth/signin');
       // Clears cached server component
       // Forces auth-dependent layouts/pages to re-evaluate
       // Prevents “ghost logged-in UI”
       router.refresh();
-      window.location.href = '/signin';
+      window.location.href = '/auth/signin';
     } finally {
       setLoading(false);
     }
