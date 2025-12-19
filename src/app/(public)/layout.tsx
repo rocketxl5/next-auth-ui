@@ -10,7 +10,9 @@ export default function PublicLayout({
         <h1 className="text-lg font-semibold">Public Area</h1>
       </header>
 
-      <main className="mx-auto max-w-5xl p-6">{children}</main>
+      <main className=" mx-auto max-w-5xl p-6">
+        <div className="bg-white dark:bg-black">{children}</div>
+      </main>
 
       <footer className="border-t p-4 text-sm text-gray-500">
         © {new Date().getFullYear()}
