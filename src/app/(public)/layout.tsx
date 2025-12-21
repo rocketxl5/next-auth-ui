@@ -11,7 +11,7 @@ export default function PublicLayout({
       </header>
 
       <main className=" mx-auto max-w-5xl p-6">
-        <div className="bg-white dark:bg-black">{children}</div>
+        <div>{children}</div>
       </main>
 
       <footer className="border-t p-4 text-sm text-gray-500">

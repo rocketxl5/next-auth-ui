@@ -1,5 +1,7 @@
 // app/(auth)/layout.tsx
-import { SignoutBtn } from '@/components/ui/Button/SignoutBtn';
+import { SignoutBtn } from '@/components/ui/button/SignoutBtn';
+import { ThemeBtn } from '@/components/ui/button/ThemeBtn';
+
 export default function AuthLayout({
   children,
 }: {
@@ -9,13 +11,17 @@ export default function AuthLayout({
     <>
       <header className="border-b p-4 flex justify-between">
         <h1 className="text-lg font-semibold">Dashboard</h1>
-
-        <form action="/api/auth/signout" method="POST">
-          <SignoutBtn />
-        </form>
+        <div className="flex gap-4">
+          <ThemeBtn />
+          <form action="/api/auth/signout" method="POST">
+            <SignoutBtn />
+          </form>
+        </div>
       </header>
 
-      <main className="mx-auto max-w-6xl p-6">{children}</main>
+      <main className="dark:bg-black dark:text-white mx-auto max-w-6xl p-6">
+        {children}
+      </main>
     </>
   );
 }
