@@ -7,7 +7,13 @@ const config: Config = {
     './src/lib/**/*.{ts,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        bg: 'var(--color-bg)',
+        fg: 'var(--color-fg)',
+        border: 'var(--color-border)',
+      },
+    },
   },
   plugins: [],
 };

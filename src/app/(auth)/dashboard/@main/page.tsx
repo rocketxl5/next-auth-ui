@@ -5,11 +5,11 @@ export default async function AdminDashboard() {
   const user = await requireRole(["ADMIN", "SUPER_ADMIN"]);
 
   return (
-    <div>
+    <main className="flex-1 p-6 bg-bg">
       <h1>Admin Dashboard</h1>
       <p>Welcome, {user.email}</p>
       <p>Role: {user.role}</p>
       <p>Placeholder page for CMS + E-commerce template.</p>
-    </div>
+    </main>
   );
 }

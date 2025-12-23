@@ -31,7 +31,9 @@ export function ThemeProvider({
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
+    // root.classList.toggle('dark', theme === 'dark');
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
     document.cookie = `theme=${theme}; path=/; max-age=31536000`;
   }, [theme]);
 
