@@ -34,7 +34,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createAccessToken, createRefreshToken } from '@/lib/auth/tokens';
-import { setAuthCookies } from '@/lib/auth/cookies';
+import { setAuthCookies } from '@/lib/auth/auth-cookies';
 import { unauthorized, badRequest, internalServerError } from '@/lib/http';
 
 const prisma = new PrismaClient();

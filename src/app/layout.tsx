@@ -1,22 +1,20 @@
-import { cookies } from 'next/headers';
+import { getCookie } from '@/lib/server/cookies';
+import { Theme } from '@/components/providers/theme';
+import Providers from './providers';
 import './globals.css';
-import { ThemeProvider, type Theme } from '@/lib/theme/ThemeProvider';
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const theme: Theme =
-    cookieStore.get('theme')?.value === 'dark' ? 'dark' : 'light';
+  const currentTheme = await getCookie('theme');
+  const theme: Theme = currentTheme === 'dark' ? 'dark' : 'light';
 
   return (
-    <html lang="en" className={theme === 'dark' ? 'dark' : ''}>
+    <html lang="en" className={theme}>
       <body>
-        <div className="w-full h-screen">
-          <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
-        </div>
+        <Providers initialTheme={theme}>{children}</Providers>
       </body>
     </html>
   );

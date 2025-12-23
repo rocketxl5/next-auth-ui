@@ -14,7 +14,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { clearAuthCookies } from './auth/cookies'; // adjust path
+import { clearAuthCookies } from './auth/auth-cookies'; // adjust path
 
 /**
  * Helper to return 401 Unauthorized.

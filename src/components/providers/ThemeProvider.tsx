@@ -7,8 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from 'react';
-
-export type Theme = 'light' | 'dark';
+import { Theme } from './theme';
 
 type ThemeContextValue = {
   theme: Theme;
@@ -31,7 +30,7 @@ export function ThemeProvider({
   };
 
   useEffect(() => {
-    const root = document.documentElement
+    const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
     document.cookie = `theme=${theme}; path=/; max-age=31536000`;
   }, [theme]);

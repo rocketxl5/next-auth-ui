@@ -36,7 +36,7 @@ import {
   createAccessToken,
   createRefreshToken,
 } from '@/lib/auth/tokens';
-import { setAuthCookies } from '@/lib/auth/cookies';
+import { setAuthCookies } from '@/lib/auth/auth-cookies';
 import { unauthorized, internalServerError } from '@/lib/http';
 
 export async function POST() {
