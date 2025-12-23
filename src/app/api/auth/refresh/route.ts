@@ -28,7 +28,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getCookie } from '@/lib/server/cookies';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import {
@@ -42,8 +42,7 @@ import { unauthorized, internalServerError } from '@/lib/http';
 export async function POST() {
   try {
     // Read refresh token form httpOnly cookie
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get('refreshToken')?.value;
+    const refreshToken = await getCookie('refreshToken');
 
     // If no token, clear cookies
     if (!refreshToken) return unauthorized('Missing refresh token');
@@ -63,32 +62,39 @@ export async function POST() {
     if (!user || !user.refreshTokenHash) return unauthorized();
 
     const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
-    if(!isValid) return unauthorized()
+    if (!isValid) return unauthorized();
 
     // Generate new tokens (rotation)
-    const newAccessToken = createAccessToken({id: user.id, email: user.email, role: user.role})
-    const newRefreshToken = createRefreshToken({id: user.id})
+    const newAccessToken = createAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+    const newRefreshToken = createRefreshToken({ id: user.id });
 
     // Hash new refresh token and store in DB
-    const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10)
+    const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
 
     await prisma.user.update({
-      where: {id: user.id},
-      data: {refreshTokenHash: hashedRefreshToken}
-    })
+      where: { id: user.id },
+      data: { refreshTokenHash: hashedRefreshToken },
+    });
 
     // Prepare response with safe user info
     const res = NextResponse.json(
-      {user: {id: user.id, email: user.email, role: user.role}},
-      {status: 200}
-    )
+      { user: { id: user.id, email: user.email, role: user.role } },
+      { status: 200 }
+    );
 
     // Set access & refresh cookies
-    setAuthCookies(res, {accessToken: newAccessToken, refreshToken: newRefreshToken})
+    setAuthCookies(res, {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
 
     return res;
   } catch (error) {
-    console.error('REFRESH ERROR:', error)
+    console.error('REFRESH ERROR:', error);
 
     return internalServerError();
   }

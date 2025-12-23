@@ -21,15 +21,14 @@
  */
 
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { getCookie } from '@/lib/server/cookies';
 import { verifyAccessToken } from '@/lib/auth/tokens';
 import { unauthorized, internalServerError } from '@/lib/http';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+    const accessToken = await getCookie('accessToken');
 
     if (!accessToken) {
       return unauthorized();

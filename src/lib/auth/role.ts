@@ -36,15 +36,13 @@
  * -------------------------------------------------------
  */
 
-
-import { cookies } from 'next/headers';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { getCookie } from '../server/cookies';
 
 type AllowedRoles = string | string[];
 
 export async function requireRole(roles: AllowedRoles) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
+  const accessToken = await getCookie('accessToken');
 
   if (!accessToken) {
     throw new Error('Not authenticated');

@@ -41,8 +41,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { getCookie } from '@/lib/server/cookies';
 import { verifyRefreshToken } from '@/lib/auth/tokens';
 import { clearAuthCookies } from '@/lib/auth/auth-cookies';
 
@@ -50,8 +50,7 @@ export async function POST() {
   const res = NextResponse.json(null, { status: 204 });
 
   try {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get('refreshToken')?.value;
+    const refreshToken = await getCookie('refreshToken');
 
     // If no refresh token, still clear cookies (idempotent)
     if (refreshToken) {
