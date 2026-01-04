@@ -44,7 +44,7 @@ api.interceptors.response.use(
 
       // Avoid infinite loop
       if (
-        !currentPath.startsWith('/auth/signin') ||
+        !currentPath.startsWith('/auth/signin') &&
         !currentPath.startsWith('/auth/signup')
       ) {
         isRedirecting = true;
