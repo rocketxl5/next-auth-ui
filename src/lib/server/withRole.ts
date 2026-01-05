@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireRole } from './role';
+import { requireRole } from '../server/role';
 
 export function withRole(
   roles: string[],

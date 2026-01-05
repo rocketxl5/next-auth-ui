@@ -37,14 +37,14 @@
  */
 
 import { NextResponse } from 'next/server';
-import { withRole } from '@/lib/auth/withRole';
+import { withRole } from '@/lib/server/withRole';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 // --------------------
 // GET — List all users
 // --------------------
-export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const GET = withRole(['admin', 'super_admin'], async (req) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -73,7 +73,7 @@ export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // POST — Create a new user
 // --------------------
-export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const POST = withRole(['admin', 'super_admin'], async (req) => {
   const data = await req.json();
 
   if (!data.email || !data.password || !data.role) {
@@ -120,7 +120,7 @@ export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // PUT — Update existing user
 // --------------------
-export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const PUT = withRole(['admin', 'super_admin'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -162,7 +162,7 @@ export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // DELETE — Remove user
 // --------------------
-export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const DELETE = withRole(['admin', 'super_admin'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)

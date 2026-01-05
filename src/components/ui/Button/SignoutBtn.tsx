@@ -29,7 +29,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from '@/lib/auth/signOut';
+import { signOut } from '@/lib/server/signOut';
 
 export function SignoutBtn() {
   const [loading, setLoading] = useState(false);

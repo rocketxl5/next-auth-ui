@@ -1,5 +1,7 @@
-import { SignoutBtn } from '@/components/ui/button/SignoutBtn';
-import { ThemeBtn } from '@/components/ui/button/ThemeBtn';
+import { SignoutBtn } from '../../../../components/ui/button/SignoutBtn';
+import { ThemeBtn } from '../../../../components/ui/button/ThemeBtn';
+// import { SignoutBtn } from '@/components/ui/button/SignoutBtn';
+// import { ThemeBtn } from '@/components/ui/button/ThemeBtn';
 
 export default function Header() {
   return (

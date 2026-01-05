@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAccessTokenEdge } from './src/lib/auth/tokens';
-import { redirectToSignin } from './src/lib/auth/redirect';
+import { redirectToSignin } from './src/lib/server/redirect';
 
 const PROTECTED = ['/dashboard', '/admin'];
 const ADMIN_ONLY = ['/admin']; // only /admin strictly admin

@@ -1,8 +1,8 @@
-import { requireRole } from "@/lib/auth/role";
+import { requireRole } from '@/lib/server/role';
 
 export default async function AdminDashboard() {
   // Only admin or super_admin can access. Will throw if not.
-  const user = await requireRole(["ADMIN", "SUPER_ADMIN"]);
+  const user = await requireRole(['ADMIN', 'SUPER_ADMIN']);
 
   return (
     <main className="flex-1 p-6 bg-bg">

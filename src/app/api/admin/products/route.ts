@@ -37,13 +37,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { withRole } from '@/lib/auth/withRole';
+import { withRole } from '@/lib/server/withRole';
 import prisma from '@/lib/prisma';
 
 // --------------------
 // GET — Fetch all products (admin only)
 // --------------------
-export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const GET = withRole(['admin', 'super_admin'], async (req) => {
   try {
     const products = await prisma.contentItem.findMany({
       where: { type: 'PRODUCT' },
@@ -73,7 +73,7 @@ export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // POST — Create new product
 // --------------------
-export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const POST = withRole(['admin', 'super_admin'], async (req) => {
   const data = await req.json();
 
   try {
@@ -101,7 +101,7 @@ export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // PUT — Update existing product
 // --------------------
-export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const PUT = withRole(['admin', 'super_admin'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -133,7 +133,7 @@ export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
 // --------------------
 // DELETE — Remove product
 // --------------------
-export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const DELETE = withRole(['admin', 'super_admin'], async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)

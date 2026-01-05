@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
 import { signinSchema } from '@/lib/validators';
-import { getRedirectPathname } from '@/lib/auth/pathname';
+import { getRedirectPathname } from '@/lib/server/pathname';
 import { withSuspense } from '@/components/hoc/withSuspense';
 import { SigninSkeleton } from './SiginSkeleton';
 

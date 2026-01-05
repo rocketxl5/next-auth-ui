@@ -1,4 +1,4 @@
-import { requireRole } from '@/lib/auth/role';
+import { requireRole } from '@/lib/server/role';
 
 export default async function ManageUsers() {
   // Only admin or super_admin can access
