@@ -41,14 +41,14 @@ import { unauthorized, internalServerError } from '@/lib/http';
 
 export async function POST() {
   try {
-    // Read refresh token form httpOnly cookie
     const refreshToken = await getCookie('refreshToken');
 
-    // If no token, clear cookies
-    if (!refreshToken) return unauthorized('Missing refresh token');
+    if (!refreshToken) {
+      return unauthorized('Missing refresh token');
+    }
 
-    // Verify token and decode payload
     let decoded;
+
     try {
       decoded = verifyRefreshToken(refreshToken);
     } catch {
@@ -57,22 +57,26 @@ export async function POST() {
 
     const userId = decoded.id as string;
 
-    // Fetch user and validate refreshTokenHash
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user || !user.refreshTokenHash) return unauthorized();
+
+    if (!user || !user.refreshTokenHash) {
+      return unauthorized();
+    }
 
     const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
-    if (!isValid) return unauthorized();
 
-    // Generate new tokens (rotation)
-    const newAccessToken = createAccessToken({
+    if (!isValid) {
+      return unauthorized();
+    }
+
+    // Token rotation
+    const accessToken = createAccessToken({
       id: user.id,
       email: user.email,
       role: user.role,
     });
-    const newRefreshToken = createRefreshToken({ id: user.id });
 
-    // Hash new refresh token and store in DB
+    const newRefreshToken = createRefreshToken({ id: user.id });
     const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
 
     await prisma.user.update({
@@ -80,7 +84,6 @@ export async function POST() {
       data: { refreshTokenHash: hashedRefreshToken },
     });
 
-    // Prepare response with safe user info
     const res = NextResponse.json(
       { user: { id: user.id, email: user.email, role: user.role } },
       { status: 200 }
@@ -88,14 +91,13 @@ export async function POST() {
 
     // Set access & refresh cookies
     setAuthCookies(res, {
-      accessToken: newAccessToken,
+      accessToken,
       refreshToken: newRefreshToken,
     });
 
     return res;
   } catch (error) {
     console.error('REFRESH ERROR:', error);
-
     return internalServerError();
   }
 }

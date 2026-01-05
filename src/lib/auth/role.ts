@@ -36,43 +36,25 @@
  * -------------------------------------------------------
  */
 
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { getCookie } from '../server/cookies';
+import { getSession } from '../server/session';
+import type { User } from '@/types/users';
 
-type AllowedRoles = string | string[];
+type AllowedRoles = User['role'] | User['role'][];
 
 export async function requireRole(roles: AllowedRoles) {
-  const accessToken = await getCookie('accessToken');
+  const session = await getSession();
 
-  if (!accessToken) {
-    // throw new Error('Not authenticated');
-    return { ok: false, reason: 'unauthenticated' };
+  if (!session) {
+    return { ok: false, reason: 'unauthenticated' } as const;
   }
 
-  const secret = process.env.JWT_ACCESS_SECRET!;
-  let decoded: JwtPayload;
-
-  try {
-    decoded = jwt.verify(accessToken, secret) as JwtPayload;
-  } catch (error) {
-    // console.error(error);
-    // throw new Error('Invalid or expired token');
-    return { ok: false, reason: 'invalid_token' };
-  }
-
-  const userRole = decoded.role;
-
-  if (!userRole) {
-    // throw new Error('Token missing role');
-    return { ok: false, reason: 'missing_role' };
-  }
+  const userRole = session.user.role;
 
   const allowed = Array.isArray(roles) ? roles : [roles];
 
   if (!allowed.includes(userRole)) {
-    // throw new Error('Not authorized');
-    return { ok: false, reason: 'forbidden' };
+    return { ok: false, reason: 'forbidden' } as const;
   }
 
-  return decoded;
+  return { ok: true, user: session.user } as const;
 }

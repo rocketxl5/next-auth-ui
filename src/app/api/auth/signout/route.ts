@@ -52,7 +52,6 @@ export async function POST() {
   try {
     const refreshToken = await getCookie('refreshToken');
 
-    // If no refresh token, still clear cookies (idempotent)
     if (refreshToken) {
       try {
         const decoded = verifyRefreshToken(refreshToken);
@@ -65,10 +64,12 @@ export async function POST() {
           });
         }
       } catch (error) {
-        console.error('SIGNOUT ERROR:', error);
+        //  Token may be expired or invalid => ok on signout
+        console.warn('SIGNOUT: refresh token invalid or expired');
       }
     }
   } finally {
+    // Always clear cookies
     clearAuthCookies(res);
   }
 
