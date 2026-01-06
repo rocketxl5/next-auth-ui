@@ -1,6 +1,6 @@
 'use client';
 
-import { ThemeBtn } from '../ui/button/ThemeBtn';
+import { ThemeBtn } from '../ui/Button/ThemeBtn';
 
 type HeaderProps = {
   variant?: 'public' | 'auth' | 'admin';
