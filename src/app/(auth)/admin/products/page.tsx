@@ -2,7 +2,7 @@ import { requireAuth } from '@/lib/server/requireAuth';
 
 export default async function ManageProducts() {
   const { user } = await requireAuth({
-    roles: ['admin', 'super_admin'],
+    roles: ['ADMIN', 'SUPER_ADMIN'],
   });
 
   return (

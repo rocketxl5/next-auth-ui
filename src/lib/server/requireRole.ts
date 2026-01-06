@@ -40,13 +40,7 @@ export async function requireRole(roles: AllowedRoles) {
 
   const userRole = session.user.role;
 
-  console.log(userRole);
-  
-
   const allowed = Array.isArray(roles) ? roles : [roles];
-
-  console.log(allowed);
-  
 
   if (!allowed.includes(userRole)) {
     return { ok: false, reason: 'forbidden' } as const;
