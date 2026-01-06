@@ -1,8 +1,9 @@
-import { requireRole } from '@/lib/server/role';
+import { requireAuth } from '@/lib/server/requireAuth';
 
 export default async function ManageUsers() {
-  // Only admin or super_admin can access
-  const user = await requireRole(['ADMIN', 'SUPER_ADMIN']);
+  const { user } = await requireAuth({
+    roles: ['admin', 'super_admin'],
+  });
 
   return (
     <div>

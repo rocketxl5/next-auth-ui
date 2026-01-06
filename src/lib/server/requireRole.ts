@@ -26,7 +26,7 @@
  */
 
 
-import { getSession } from './session';
+import { getSession } from './getSession';
 import type { User } from '@/types/users';
 
 type AllowedRoles = User['role'] | User['role'][];
@@ -40,11 +40,17 @@ export async function requireRole(roles: AllowedRoles) {
 
   const userRole = session.user.role;
 
+  console.log(userRole);
+  
+
   const allowed = Array.isArray(roles) ? roles : [roles];
+
+  console.log(allowed);
+  
 
   if (!allowed.includes(userRole)) {
     return { ok: false, reason: 'forbidden' } as const;
   }
 
-  return { ok: true, user: session.user } as const;
+  return { ok: true, user: session.user };
 }

@@ -7,11 +7,11 @@ export type UserSettings = {
 }
 
 export type DashboardUser = {
-  id: string
-  email: string
-  name: string | null
-  role: 'user' | 'admin'
-}
+  id: string;
+  email: string;
+  name: string | null;
+  role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+};
 
 export type DashboardData = {
   user: DashboardUser

@@ -42,7 +42,7 @@
 
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getCookie } from '@/lib/server/cookies';
+import { getCookie } from '@/lib/server/getCookie';
 import { verifyRefreshToken } from '@/lib/auth/tokens';
 import { clearAuthCookies } from '@/lib/auth/auth-cookies';
 

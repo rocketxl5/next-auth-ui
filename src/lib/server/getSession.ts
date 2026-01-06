@@ -1,4 +1,4 @@
-import { getCookie } from './cookies';
+import { getCookie } from './getCookie';
 import { verifyAccessToken } from '../auth/tokens';
 import { User } from '@/types/users';
 
@@ -11,7 +11,8 @@ export async function getSession(): Promise<Session> {
 
   try {
     const payload = verifyAccessToken(token);
-
+ console.log(payload);
+ 
     const user: User = {
       id: payload.id,
       role: payload.role,

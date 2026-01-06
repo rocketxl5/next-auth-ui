@@ -69,7 +69,6 @@ export async function apiFetch(input: RequestInfo, init: ApiFetchInit = {}) {
 
   // Response is OK, try to parse JSON
   try {
-    
     return await res.json();
   } catch {
     // If parsing fails (empty or invalid JSON), return null

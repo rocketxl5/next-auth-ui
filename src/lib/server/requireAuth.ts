@@ -28,7 +28,7 @@
  */
 
 import { redirect } from 'next/navigation';
-import { requireRole } from './role';
+import { requireRole } from './requireRole';
 import type { User } from '@/types/users';
 
 type RequireAuthOptions = {

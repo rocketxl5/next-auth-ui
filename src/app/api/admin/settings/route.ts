@@ -41,11 +41,11 @@
  */
 
 import { NextResponse } from 'next/server';
-import { withRole } from '@/lib/auth/withRole';
+import { withRole } from '@/lib/server/withRole';
 // -------------------------------------------------------
 // GET — Fetch admin settings
 // -------------------------------------------------------
-export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   // 2️⃣ Placeholder settings
   const settings = {
     siteName: 'CMS + E-commerce Template',

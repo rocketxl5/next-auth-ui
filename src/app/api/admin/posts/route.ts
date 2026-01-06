@@ -32,7 +32,7 @@ import prisma from '@/lib/prisma';
 // -------------------------------------------------------
 // GET — List all posts
 // -------------------------------------------------------
-export const GET = withRole(['admin', 'super_admin'], async (req) => {
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const posts = await prisma.contentItem.findMany({
       where: { type: 'POST' },
@@ -63,7 +63,7 @@ export const GET = withRole(['admin', 'super_admin'], async (req) => {
 // POST — Create a new post
 // Expects JSON body with title, slug, body, status
 // -------------------------------------------------------
-export const POST = withRole(['admin', 'super_admin'], async (req) => {
+export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const data = await req.json();
 
@@ -93,7 +93,7 @@ export const POST = withRole(['admin', 'super_admin'], async (req) => {
 // PUT — Update a post
 // Requires post ID in query parameter and body data
 // -------------------------------------------------------
-export const PUT = withRole(['admin', 'super_admin'], async (req) => {
+export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const { id } = Object.fromEntries(new URL(req.url).searchParams) as {
       id: string;
@@ -124,7 +124,7 @@ export const PUT = withRole(['admin', 'super_admin'], async (req) => {
 // DELETE — Remove a post
 // Requires post ID in query parameter
 // -------------------------------------------------------
-export const DELETE = withRole(['admin', 'super_admin'], async (req) => {
+export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req) => {
   try {
     const { id } = Object.fromEntries(new URL(req.url).searchParams) as {
       id: string;

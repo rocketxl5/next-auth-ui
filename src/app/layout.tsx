@@ -1,4 +1,4 @@
-import { getCookie } from '@/lib/server/cookies';
+import { getCookie } from '@/lib/server/getCookie';
 import { Theme } from '@/components/providers/theme';
 import Providers from './providers';
 import './globals.css';

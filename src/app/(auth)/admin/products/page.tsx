@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/server/guards';
+import { requireAuth } from '@/lib/server/requireAuth';
 
 export default async function ManageProducts() {
   const { user } = await requireAuth({

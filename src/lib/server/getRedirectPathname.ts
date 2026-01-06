@@ -13,10 +13,10 @@ export function getRedirectPathname(
   from?: string | null
 ): string {
   if (from) return from;
-
+ 
   switch (role) {
-    case 'admin': 
-    case 'super_admin':
+    case 'ADMIN': 
+    case 'SUPER_ADMIN':
       return '/dashboard'
     default: 
       return '/'

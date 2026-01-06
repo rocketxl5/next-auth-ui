@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAccessTokenEdge } from './src/lib/auth/tokens';
-import { redirectToSignin } from './src/lib/server/redirect';
+import { verifyAccessTokenEdge } from '@/lib/auth/tokens';
+import { redirectToSignin } from '@/lib/server/redirects';
 
 const PROTECTED = ['/dashboard', '/admin'];
 const ADMIN_ONLY = ['/admin']; // only /admin strictly admin
@@ -31,7 +31,7 @@ export async function middleware(req: NextRequest) {
   try {
     payload = await verifyAccessTokenEdge(token);
     console.info('[MIDDLEWARE] Payload:', payload);
-  } catch (error) {
+  } catch {
     console.warn('[MIDDLEWARE] Invalid token');
     return redirectToSignin(req);
   }

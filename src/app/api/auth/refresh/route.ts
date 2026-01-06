@@ -28,7 +28,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getCookie } from '@/lib/server/cookies';
+import { getCookie } from '@/lib/server/getCookie';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import {

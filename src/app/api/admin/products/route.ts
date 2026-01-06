@@ -43,7 +43,7 @@ import prisma from '@/lib/prisma';
 // --------------------
 // GET — Fetch all products (admin only)
 // --------------------
-export const GET = withRole(['admin', 'super_admin'], async (req) => {
+export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   try {
     const products = await prisma.contentItem.findMany({
       where: { type: 'PRODUCT' },
@@ -73,7 +73,7 @@ export const GET = withRole(['admin', 'super_admin'], async (req) => {
 // --------------------
 // POST — Create new product
 // --------------------
-export const POST = withRole(['admin', 'super_admin'], async (req) => {
+export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   const data = await req.json();
 
   try {
@@ -101,7 +101,7 @@ export const POST = withRole(['admin', 'super_admin'], async (req) => {
 // --------------------
 // PUT — Update existing product
 // --------------------
-export const PUT = withRole(['admin', 'super_admin'], async (req) => {
+export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
@@ -133,7 +133,7 @@ export const PUT = withRole(['admin', 'super_admin'], async (req) => {
 // --------------------
 // DELETE — Remove product
 // --------------------
-export const DELETE = withRole(['admin', 'super_admin'], async (req) => {
+export const DELETE = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id)
