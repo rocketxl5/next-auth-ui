@@ -31,7 +31,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from '@/lib/server/signOut';
 
-export function SignoutBtn() {
+export function SignOutBtn() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
