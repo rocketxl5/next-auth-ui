@@ -1,4 +1,4 @@
-import { SignOutBtn } from '@/components/ui/button/SignOutBtn';
+import { SignoutBtn } from '@/components/ui/button/SignoutBtn';
 import { ThemeBtn } from '@/components/ui/button/ThemeBtn';
 
 export default function Header() {
@@ -8,7 +8,7 @@ export default function Header() {
       <div className="flex gap-4">
         <ThemeBtn />
         <form action="/api/auth/signout" method="POST">
-          <SignOutBtn />
+          <SignoutBtn />
         </form>
       </div>
     </header>
