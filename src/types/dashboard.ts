@@ -1,19 +1,9 @@
-// src/types/dashboard.ts
-export type UserTheme = 'light' | 'dark' | 'system'
+import { User } from './users';
+import { UserSettings } from './settings';
 
-
-export type UserSettings = {
-  theme: UserTheme
-}
-
-export type DashboardUser = {
-  id: string;
-  email: string;
-  name: string | null;
-  role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
-};
+export type DashboardUser = User;
 
 export type DashboardData = {
-  user: DashboardUser
-  settings: UserSettings | null
-}
+  user: DashboardUser;
+  settings: UserSettings | null;
+};

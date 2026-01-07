@@ -1,18 +1,23 @@
 'use client'
-import { NextResponse } from 'next/server';
+
 import { useState } from 'react';
+import { apiFetch } from '@/lib/api/apiFetch';
 import { withSuspense } from '@/components/hoc/withSuspense';
 import { signupFormSchema } from './schema';
 import { SignupSkeleton } from './SignupSkeleton';
+import { User } from '@/types/users';
 
-const  SignupForm = () => {
+type SigninFormProps = {
+  onSuccess: () => void;
+};
+
+const SignupForm = ({ onSuccess }: SigninFormProps) => {
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +25,6 @@ const  SignupForm = () => {
     e.preventDefault();
     setError(null);
 
-    // 1️⃣ Client-side validation (optional but nice)
     const parsed = signupFormSchema.safeParse(form);
 
     if (!parsed.success) {
@@ -29,32 +33,22 @@ const  SignupForm = () => {
     }
 
     setLoading(true);
-
+    // remove confirmPassword from payload
     const { confirmPassword, ...payload } = parsed.data;
 
     try {
-      const res = await fetch('/api/auth/signup', {
+      // apiFetch throws on non-OK responses
+      await apiFetch('/api/auth/signin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: payload,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message ?? 'Signup failed');
-        return;
-      }
-
-      alert('Signup successful');
-    } catch (error) {
-      setError('Something went wrong');
+      onSuccess?.();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setError(error.message ?? 'Something went wrong');
 
       console.error('SIGNIN ERROR:', error);
-      return NextResponse.json(
-        { message: 'Internal server error' },
-        { status: 500 }
-      );
     } finally {
       setLoading(false);
     }
@@ -108,6 +102,6 @@ const  SignupForm = () => {
       {error && <p className="text-sm text-red-600">{error}</p>}
     </form>
   );
-}
+};
 
 export default withSuspense(SignupForm, SignupSkeleton)
