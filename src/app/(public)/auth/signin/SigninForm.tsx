@@ -1,16 +1,17 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
 import { signinSchema } from '@/lib/validators';
-import { getRedirectPathname } from '@/lib/server/getRedirectPathname';
 import { withSuspense } from '@/components/hoc/withSuspense';
 import { SigninSkeleton } from './SiginSkeleton';
+import type { User } from '@/types/users';
 
-const SigninForm = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+type SigninFormProps = {
+  onSuccess: (user: User) => void;
+};
+
+const SigninForm = ({ onSuccess }: SigninFormProps) => {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -45,11 +46,12 @@ const SigninForm = () => {
         throw new Error('Signin succeeded but no user payload was returned');
       }
 
-      const from = searchParams.get('from');
- 
-      const pathname = getRedirectPathname(user.role, from);
+      onSuccess?.(user);
+      // const from = searchParams.get('from');
 
-      router.replace(pathname);
+      // const pathname = getRedirectPathname(user.role, from);
+
+      // router.replace(pathname);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message ?? 'Invalid credentials');
@@ -95,4 +97,4 @@ const SigninForm = () => {
   );
 };
 
-export default withSuspense(SigninForm, SigninSkeleton)
+export default withSuspense(SigninForm, SigninSkeleton);

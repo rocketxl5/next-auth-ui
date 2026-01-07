@@ -61,29 +61,12 @@ async function main() {
       authorId: createdUsers[Role.ADMIN].id,
     },
     {
-      title: 'Sample Product 2',
-      slug: 'sample-product-2',
-      description: 'Another demo product.',
-      price: 29.99,
-      type: ContentType.PRODUCT,
-      status: ContentStatus.PUBLISHED,
-      authorId: createdUsers[Role.ADMIN].id,
-    },
-    {
       title: 'Hello World Blog',
       slug: 'hello-world-blog',
       body: { text: 'This is a demo blog post.' },
       type: ContentType.POST,
       status: ContentStatus.PUBLISHED,
       authorId: createdUsers[Role.AUTHOR].id,
-    },
-    {
-      title: 'About Us',
-      slug: 'about-us',
-      body: { text: 'This is a sample CMS page.' },
-      type: ContentType.PAGE,
-      status: ContentStatus.PUBLISHED,
-      authorId: createdUsers[Role.EDITOR].id,
     },
   ];
 
@@ -121,7 +104,7 @@ async function main() {
     update: {},
     create: {
       id: 'global',
-      siteName: 'CMS + E-commerce Template',
+      siteName: 'CMS Template',
       contactEmail: 'admin@example.com',
       theme: 'light',
     },

@@ -20,20 +20,17 @@
 
 'use client';
 
-import { Suspense, JSX, FC  } from 'react';
+import { ComponentType, Suspense } from 'react';
 
-export function withSuspense<P extends JSX.IntrinsicAttributes>(
-  Component: FC<P>,
-  Fallback: FC | null = null
+export function withSuspense<P extends object>(
+  Component: ComponentType<P>,
+  Fallback: ComponentType<object>
 ) {
-  const Wrapped: FC<P>= (props) => (
-    <Suspense fallback={Fallback ? <Fallback /> : null}>
+  const WithSuspense = (props: P) => (
+    <Suspense fallback={<Fallback />}>
       <Component {...props} />
     </Suspense>
   );
 
-  Wrapped.displayName =
-    `WithSuspense(${Component.displayName || Component.name || 'Component'})`;
-
-  return Wrapped;
+  return WithSuspense;
 }

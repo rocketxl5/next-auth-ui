@@ -7,12 +7,22 @@
 
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import SigninForm from './SigninForm';
+import { getRedirectPathname } from '@/lib/server/getRedirectPathname';
+import { User } from '@/types/users';
 
 export default function SigninPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <SigninForm />
-    </div>
+    <SigninForm
+      onSuccess={(user: User) => {
+        const from = searchParams.get('from');
+        const pathname = getRedirectPathname(user.role, from);
+        router.replace(pathname);
+      }}
+    />
   );
 }

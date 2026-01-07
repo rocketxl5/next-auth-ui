@@ -11,7 +11,6 @@ export async function getSession(): Promise<Session> {
 
   try {
     const payload = verifyAccessToken(token);
- console.log(payload);
  
     const user: User = {
       id: payload.id,
