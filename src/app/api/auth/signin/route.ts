@@ -74,9 +74,10 @@ export async function POST(req: NextRequest) {
      *   - passwords are opaque secrets
      *   - changing them would break authentication
      */
-    const normalized = normalizeObject<SigninPayload>(body, {
-      email: normalizeEmail,
-    });
+    const normalized = {
+      ...normalizeObject<SigninPayload>(body, { email: normalizeEmail }), // normalize email
+      password: body.password, // copy password untouched
+    };
 
     /**
      * 3️⃣ Assert required fields
