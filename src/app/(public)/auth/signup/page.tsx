@@ -1,11 +1,15 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import SignupForm from './SignupForm';
 
-export default function SigninPage() {
+export default function SignupPage() {
+  const router = useRouter();
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <SignupForm />
-    </div>
+    <SignupForm
+      onSuccess={() => {
+        router.replace('/auth/signin');
+      }}
+    />
   );
 }

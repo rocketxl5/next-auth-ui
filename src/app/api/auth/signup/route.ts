@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const { name, email, password } = body;
 
     if (!email || !password) {
-      badRequest('Email and password are required');
+      return badRequest('Email and password are required');
     }
 
     // 2. Check if user already exists
@@ -49,8 +49,11 @@ export async function POST(req: Request) {
       where: { email },
     });
 
+    console.log(existingUser);
+    
+
     if (existingUser) {
-      conflict('User already exists');
+      return conflict('User already exists');
     }
 
     // 3. Hash password
@@ -80,6 +83,6 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('SIGNUP ERROR:', error);
 
-    internalServerError();
+    return internalServerError();
   }
 }

@@ -28,7 +28,7 @@
  *   - /api/auth/logout
  * -------------------------------------------------------
  */
-
+import { COOKIE_KEYS } from '@/types/cookies';
 import { NextResponse } from 'next/server';
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -56,13 +56,13 @@ type AuthTokens = { accessToken: string; refreshToken: string };
  */
 export function setAuthCookies(res: NextResponse, tokens: AuthTokens) {
   res.cookies.set({
-    name: 'accessToken',
+    name: COOKIE_KEYS.accessToken,
     value: tokens.accessToken,
     ...accessCookieOptions,
   });
 
   res.cookies.set({
-    name: 'refreshToken',
+    name: COOKIE_KEYS.refreshToken,
     value: tokens.refreshToken,
     ...refreshCookieOptions,
   });
@@ -72,6 +72,17 @@ export function setAuthCookies(res: NextResponse, tokens: AuthTokens) {
  * Clears auth cookies (useful for logout).
  */
 export function clearAuthCookies(res: NextResponse) {
-  res.cookies.delete('accessToken');
-  res.cookies.delete('refreshToken');
+  res.cookies.set({
+    name: COOKIE_KEYS.accessToken,
+    value: '',
+    ...accessCookieOptions,
+    maxAge: 0,
+  });
+
+  res.cookies.set({
+    name: COOKIE_KEYS.refreshToken,
+    value: '',
+    ...refreshCookieOptions,
+    maxAge: 0,
+  });
 }

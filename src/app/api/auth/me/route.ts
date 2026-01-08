@@ -25,11 +25,12 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { verifyAccessToken } from '@/lib/auth/tokens';
 import { unauthorized, internalServerError } from '@/lib/http';
+import { COOKIE_KEYS } from '@/types/cookies';
 
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+    const accessToken = cookieStore.get(COOKIE_KEYS.accessToken)?.value;
 
     if (!accessToken) {
       return unauthorized();
