@@ -5,7 +5,6 @@ import { apiFetch } from '@/lib/api/apiFetch';
 import { withSuspense } from '@/components/hoc/withSuspense';
 import { signupFormSchema } from './schema';
 import { SignupSkeleton } from './SignupSkeleton';
-import { User } from '@/types/users';
 
 type SigninFormProps = {
   onSuccess: () => void;
@@ -38,7 +37,7 @@ const SignupForm = ({ onSuccess }: SigninFormProps) => {
 
     try {
       // apiFetch throws on non-OK responses
-      await apiFetch('/api/auth/signin', {
+      await apiFetch('/api/auth/signup', {
         method: 'POST',
         body: payload,
       });

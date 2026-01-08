@@ -1,70 +1,101 @@
+// app/api/auth/signup/route.ts
+
 /**
- * SIGN UP ROUTE
- * -------------------------------------------------------
- * Purpose:
- *   Registers a new user and immediately authenticates them.
+ * Signup API endpoint
  *
- * Flow:
- *   1. Read and validate registration data
- *   2. Check if email already exists
- *   3. Hash the password (bcrypt)
- *   4. Create new user in the database
- *   5. Generate access token + refresh token
- *   6. Store hashed refresh token in the database
- *   7. Set secure HTTP-only auth cookies
- *   8. Return user-safe data (no sensitive fields)
+ * This route handles new user registration safely, type-safely, and consistently:
  *
- * Failure cases:
- *   - Missing required fields
- *   - Email already in use
- *   - Database errors
+ * Steps:
+ * 1️⃣ Parse incoming JSON payload from the client
+ * 2️⃣ Normalize selected fields (email, name) using reusable `normalizeObject`
+ * 3️⃣ Assert that required fields exist using `assertRequired` (runtime + TypeScript safety)
+ * 4️⃣ Validate and handle password separately (check existence + hash)
+ * 5️⃣ Insert the normalized, validated user into the database (Prisma)
+ * 6️⃣ Return minimal safe user information to the client
  *
- * Security notes:
- *   - Password is always hashed before storage
- *   - Tokens are never exposed to JavaScript (httpOnly)
- *   - Follows the same security model as Sign In
- * -------------------------------------------------------
- *
- * Method:   POST /api/auth/signup
- * Access:   Public
+ * Principles:
+ * - TypeScript 5 strict type safety (no `any`)
+ * - Separation of normalization vs validation
+ * - Runtime checks for required fields
+ * - Passwords handled securely (hashed, never returned)
  */
 
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import prisma from '@/lib/prisma';
-import { conflict, badRequest, internalServerError } from '@/lib/http';
+import bcrypt from 'bcryptjs'; // For secure password hashing
+import { prisma } from '@/lib/prisma'; // Prisma client
+import {
+  normalizeEmail,
+  normalizeSlug,
+  normalizeObject,
+  assertRequired,
+} from '@/lib/utils/normalizers'; // Normalization + validation utilities
+import { NextResponse } from 'next/server'; // Optional: cleaner JSON responses
 
+/**
+ * Interface representing the expected shape of the signup payload
+ */
+interface SignupPayload {
+  email: string; // Required, normalized
+  password: string; // Required, validated separately
+  name: string; // Required, normalized
+}
+
+/**
+ * POST /api/auth/signup
+ * Handles user registration
+ */
 export async function POST(req: Request) {
   try {
-    // 1. Parse body
-    const body = await req.json();
-    const { name, email, password } = body;
+    // ------------------------------------------------------------
+    // 1️⃣ Parse incoming JSON body
+    // ------------------------------------------------------------
+    // `req.json()` parses the stringified JSON sent by the client into a JS object
+    const body: Record<string, unknown> = await req.json();
 
-    if (!email || !password) {
-      return badRequest('Email and password are required');
-    }
-
-    // 2. Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    // ------------------------------------------------------------
+    // 2️⃣ Normalize fields
+    // ------------------------------------------------------------
+    // Only normalize fields we care about:
+    // - email: trimmed and lowercased
+    // - name: trimmed
+    // Password is intentionally left raw for hashing
+    const normalized = normalizeObject<SignupPayload>(body, {
+      email: normalizeEmail,
+      name: normalizeSlug, // Using your normalizeSlug utility as an example for names
     });
 
-    console.log(existingUser);
-    
+    // ------------------------------------------------------------
+    // 3️⃣ Runtime + TypeScript safety check
+    // ------------------------------------------------------------
+    // Throws if any required field is missing
+    assertRequired(normalized, ['email', 'name']);
 
-    if (existingUser) {
-      return conflict('User already exists');
+    // Destructure normalized fields
+    const { email, name } = normalized as SignupPayload;
+
+    // ------------------------------------------------------------
+    // 4️⃣ Handle password separately
+    // ------------------------------------------------------------
+    const password = body.password;
+    if (!password || typeof password !== 'string') {
+      return NextResponse.json(
+        { error: 'Password is required' },
+        { status: 400 }
+      );
     }
 
-    // 3. Hash password
+    // ------------------------------------------------------------
+    // 5️⃣ Hash password
+    // ------------------------------------------------------------
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4.Create user
+    // ------------------------------------------------------------
+    // 6️⃣ Create user in the database
+    // ------------------------------------------------------------
     const user = await prisma.user.create({
       data: {
-        name: name || null,
-        email,
-        password: hashedPassword,
+        email, // Normalized email
+        name, // Normalized display name
+        password: hashedPassword, // Secure hashed password
       },
       select: {
         id: true,
@@ -75,14 +106,25 @@ export async function POST(req: Request) {
       },
     });
 
-    // 5.Return safe response (never send password)
+    // ------------------------------------------------------------
+    // 7️⃣ Return minimal safe user info
+    // ------------------------------------------------------------
+    // Using NextResponse.json() for cleaner syntax
     return NextResponse.json(
-      { message: 'User created successfully', user },
+      { id: user.id, email: user.email, name: user.name },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('SIGNUP ERROR:', error);
+  } catch (err) {
+    // ------------------------------------------------------------
+    // Error handling
+    // ------------------------------------------------------------
+    console.error('SIGNUP ERROR:', err);
 
-    return internalServerError();
+    return NextResponse.json(
+      {
+        error: err instanceof Error ? err.message : 'Signup failed',
+      },
+      { status: 500 }
+    );
   }
 }
