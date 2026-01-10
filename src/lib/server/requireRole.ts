@@ -25,26 +25,34 @@
  * - Never used directly in client components
  */
 
-
+import { redirect } from 'next/navigation';
 import { getSession } from './getSession';
-import type { User } from '@/types/users';
+import { Role } from '@prisma/client';
 
-type AllowedRoles = User['role'] | User['role'][];
+type AllowedRoles = Role | Role[];
 
-export async function requireRole(roles: AllowedRoles) {
+type RequireRoleOptions = {
+  roles: AllowedRoles;
+  unauthenticatedRedirect?: string;
+  forbiddenRedirect?: string;
+};
+
+export async function requireRole({
+  roles,
+  unauthenticatedRedirect = '/auth/signin',
+  forbiddenRedirect = '/',
+}: RequireRoleOptions) {
   const session = await getSession();
 
   if (!session) {
-    return { ok: false, reason: 'unauthenticated' } as const;
+    redirect(unauthenticatedRedirect);
   }
-
-  const userRole = session.user.role;
 
   const allowed = Array.isArray(roles) ? roles : [roles];
 
-  if (!allowed.includes(userRole)) {
-    return { ok: false, reason: 'forbidden' } as const;
+  if (!allowed.includes(session.user.role)) {
+    redirect(forbiddenRedirect);
   }
 
-  return { ok: true, user: session.user };
+  return session.user;
 }
