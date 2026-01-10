@@ -1,27 +1,41 @@
-// Wraps API route handler and enforces role.
+// lib/server/withRole.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { requireRole } from './requireRole';
-import { Role } from '@prisma/client';
 import type { User } from '@/types/users';
+import { getSession } from './getSession';
+
+/**
+ * Pure role enforcement for API routes
+ */
+export async function requireRoleApi(
+  roles: User['role'] | User['role'][]
+): Promise<{
+  ok: boolean;
+  reason?: 'unauthenticated' | 'forbidden';
+  user?: User;
+}> {
+  const session = await getSession();
+  if (!session) return { ok: false, reason: 'unauthenticated' };
+
+  const allowed = Array.isArray(roles) ? roles : [roles];
+  if (!allowed.includes(session.user.role))
+    return { ok: false, reason: 'forbidden' };
+
+  return { ok: true, user: session.user };
+}
 
 /**
  * Higher-order function for API route handlers
- * --------------------------------------------
- * - Checks user session and role using requireRole
- * - Passes typed `user` to the handler if authorized
- * - Returns proper JSON response if unauthorized or forbidden
  */
-
 export function withRole(
-  roles: Role[],
+  roles: User['role'] | User['role'][],
   handler: (req: NextRequest, user: User) => Promise<Response>
 ) {
   return async (
     req: NextRequest,
-    context: { params: Promise<Record<string, string>> } // ✅ matches Next.js
+    context: { params: Promise<Record<string, string>> }
   ) => {
     try {
-      const auth = await requireRole(roles);
+      const auth = await requireRoleApi(roles);
 
       if (!auth.ok || !auth.user) {
         const status = auth.reason === 'unauthenticated' ? 401 : 403;
@@ -31,7 +45,6 @@ export function withRole(
         );
       }
 
-      // Pass the user into the handler; ignore context if unused
       return handler(req, auth.user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

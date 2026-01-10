@@ -38,8 +38,28 @@
 
 import { NextResponse } from 'next/server';
 import { withRole } from '@/lib/server/withRole';
+import { Role } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+
+// --------------------
+// Local types for payloads
+// --------------------
+type UserCreatePayload = {
+  name?: string;
+  email: string;
+  password: string;
+  role: Role;
+  isActive?: boolean;
+  isVerified?: boolean;
+};
+
+type UserUpdatePayload = {
+  name?: string;
+  role?: Role;
+  isActive?: boolean;
+  isVerified?: boolean;
+};
 
 // --------------------
 // GET — List all users
@@ -74,7 +94,7 @@ export const GET = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
 // POST — Create a new user
 // --------------------
 export const POST = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
-  const data = await req.json();
+  const data: UserCreatePayload = await req.json();
 
   if (!data.email || !data.password || !data.role) {
     return NextResponse.json(
@@ -126,7 +146,7 @@ export const PUT = withRole(['ADMIN', 'SUPER_ADMIN'], async (req, user) => {
   if (!id)
     return NextResponse.json({ error: 'User ID required' }, { status: 400 });
 
-  const data = await req.json();
+  const data: UserUpdatePayload = await req.json();
 
   try {
     const updatedUser = await prisma.user.update({
