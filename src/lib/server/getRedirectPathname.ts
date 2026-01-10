@@ -1,5 +1,5 @@
 
-import type { Role } from "@/types/users";
+import { Role } from '@prisma/client';
 /**
  * Resolve post-auth redirect path
  * --------------------------------
@@ -17,7 +17,9 @@ export function getRedirectPathname(
   switch (role) {
     case 'ADMIN': 
     case 'SUPER_ADMIN':
-      return '/dashboard'
+      return '/admin'
+    case 'USER': 
+      return '/user'
     default: 
       return '/'
   }

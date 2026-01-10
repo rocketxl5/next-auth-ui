@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
 import { signinSchema } from '@/lib/validators';
 import { withSuspense } from '@/components/hoc/withSuspense';
-import { SigninSkeleton } from './SiginSkeleton';
+import { SigninSkeleton } from '../../app/(public)/auth/signin/SiginSkeleton';
 import type { User } from '@/types/users';
 
 type SigninFormProps = {

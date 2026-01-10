@@ -2,12 +2,14 @@ type FooterProps = {
     minimal?: boolean
 }
 
-export function Footer({minimal= false}: FooterProps) {
-    if(minimal) return null;
+export function Footer({ minimal = false }: FooterProps) {
+  if (minimal) return null;
 
-    return (
-        <footer className="border-t p-4 text-sm opacity-70">
-        <p className="text-center">© {new Date().getFullYear()} Super Next App</p>
-        </footer>
-    )
+  return (
+    <footer className="border-t p-4 text-xs">
+      <p className="text-center">
+        Copyright © {new Date().getFullYear()} ACME CMS
+      </p>
+    </footer>
+  );
 }

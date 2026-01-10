@@ -1,7 +1,8 @@
 // Wraps API route handler and enforces role.
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from './requireRole';
-import type { User, Role } from '@/types/users';
+import { Role } from '@prisma/client';
+import type { User } from '@/types/users';
 
 /**
  * Higher-order function for API route handlers

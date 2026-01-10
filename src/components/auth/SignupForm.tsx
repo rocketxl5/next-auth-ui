@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api/apiFetch';
 import { withSuspense } from '@/components/hoc/withSuspense';
-import { signupFormSchema } from './schema';
-import { SignupSkeleton } from './SignupSkeleton';
+import { signupFormSchema } from '../../app/(public)/auth/signup/schema';
+import { SignupSkeleton } from '../../app/(public)/auth/signup/SignupSkeleton';
 
 type SigninFormProps = {
   onSuccess: () => void;

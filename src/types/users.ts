@@ -1,5 +1,4 @@
-// Canonical application-level User type
-export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+import { Role } from '@prisma/client';
 
 export type User = {
   id: string;
